@@ -7,3 +7,4 @@ target/
 cmake-build-debug/
 .cache/clangd/index
 build
+compile_commands.json
