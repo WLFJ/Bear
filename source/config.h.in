@@ -106,6 +106,12 @@ namespace cmd {
         constexpr char DEFAULT_OUTPUT[] = "events.json";
     }
 
+    namespace rewrite {
+        constexpr char FLAG_CONFIG[] = "--config";
+        constexpr char FLAG_OUTPUT[] = "--output";
+        constexpr char FLAG_COMMAND[] = "--";
+    }
+
     namespace wrapper {
         constexpr char DEFAULT_PATH[] = "@ROOT_INSTALL_PREFIX@/@CMAKE_INSTALL_LIBDIR@/bear/wrapper";
         constexpr char DEFAULT_DIR_PATH[] = "@ROOT_INSTALL_PREFIX@/@CMAKE_INSTALL_LIBDIR@/bear/wrapper.d";

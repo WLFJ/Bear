@@ -20,6 +20,7 @@
 #include "Application.h"
 #include "citnames/citnames-forward.h"
 #include "intercept/intercept-forward.h"
+#include "rewrite/rewrite-forward.h"
 
 namespace {
 
@@ -99,6 +100,31 @@ namespace {
                 });
     }
 
+    rust::Result<sys::Process::Builder>
+    prepare_rewrite(const flags::Arguments &arguments, const sys::env::Vars &environment, const fs::path &_) {
+        auto program = arguments.as_string(cmd::bear::FLAG_BEAR);
+        auto output = arguments.as_string(cmd::rewrite::FLAG_OUTPUT);
+        auto config = arguments.as_string(cmd::rewrite::FLAG_CONFIG);
+
+        return rust::merge(program, output)
+                .map<sys::Process::Builder>([&environment, &config](auto tuple) {
+                    const auto&[program, output] = tuple;
+
+                    auto builder = sys::Process::Builder(program)
+                            .set_environment(environment)
+                            .add_argument(program)
+                            .add_argument("rewrite")
+                            // .add_argument(cmd::citnames::FLAG_INPUT).add_argument(input)
+                            .add_argument(cmd::rewrite::FLAG_OUTPUT).add_argument(output);
+                            // can run the file checks, because we are on the host.
+                            // .add_argument(cmd::rewrite::FLAG_RUN_CHECKS);
+                    if (config.is_ok()) {
+                        builder.add_argument(cmd::rewrite::FLAG_CONFIG).add_argument(config.unwrap());
+                    }
+                    return builder;
+                });
+    }
+
     rust::Result<int> execute(sys::Process::Builder builder, const std::string_view &name) {
         return builder.spawn()
                 .and_then<sys::ExitStatus>([](auto child) {
@@ -155,6 +181,12 @@ namespace bear {
                         {cmd::intercept::FLAG_COMMAND,       {-1, true,  "command to execute",             std::nullopt,                     std::nullopt}}
                 });
 
+                const flags::Parser rewrite_parser("rewrite", cmd::VERSION, {
+                        {cmd::citnames::FLAG_CONFIG,     {1, false, "path of the config file",                   std::nullopt,                     std::nullopt}},
+                        {cmd::intercept::FLAG_OUTPUT,        {1,  false, "path of the result file",        {cmd::intercept::DEFAULT_OUTPUT}, std::nullopt}},
+                        {cmd::intercept::FLAG_COMMAND,       {-1, true,  "command to execute",                       std::nullopt,                     std::nullopt}}
+                });
+
                 const flags::Parser citnames_parser("citnames", cmd::VERSION, {
                         {cmd::citnames::FLAG_INPUT,      {1, false, "path of the input file",                    {cmd::intercept::DEFAULT_OUTPUT}, std::nullopt}},
                         {cmd::citnames::FLAG_OUTPUT,     {1, false, "path of the result file",                   {cmd::citnames::DEFAULT_OUTPUT},  std::nullopt}},
@@ -163,7 +195,7 @@ namespace bear {
                         {cmd::citnames::FLAG_RUN_CHECKS, {0, false, "can run checks on the current host",        std::nullopt,                     std::nullopt}}
                 });
 
-		const flags::Parser parser("bear", cmd::VERSION, {intercept_parser, citnames_parser}, {
+		const flags::Parser parser("bear", cmd::VERSION, {intercept_parser, rewrite_parser, citnames_parser}, {
                         {cmd::citnames::FLAG_OUTPUT,         {1,  false, "path of the result file",                  {cmd::citnames::DEFAULT_OUTPUT},  std::nullopt}},
                         {cmd::citnames::FLAG_APPEND,         {0,  false, "append result to an existing output file", std::nullopt,                     ADVANCED_GROUP}},
                         {cmd::citnames::FLAG_CONFIG,         {1,  false, "path of the config file",                  std::nullopt,                     ADVANCED_GROUP}},
@@ -185,6 +217,9 @@ namespace bear {
                         if (auto citnames = cs::Citnames(log_config_); citnames.matches(args)) {
                             return citnames.subcommand(args, envp);
                         }
+                        if (auto rewrite = rw::Rewrite(log_config_); rewrite.matches(args)) {
+                            return rewrite.subcommand(args, envp);
+                        }
                         if (auto intercept = ic::Intercept(log_config_); intercept.matches(args)) {
                             return intercept.subcommand(args, envp);
                         }
@@ -202,6 +237,7 @@ namespace bear {
                 auto environment = sys::env::from(const_cast<const char**>(envp));
                 auto intercept = prepare_intercept(args, environment, commands);
                 auto citnames = prepare_citnames(args, environment, commands);
+                auto rewrite = prepare_rewrite(args, environment, commands);
 
                 return rust::merge(intercept, citnames)
                     .map<ps::CommandPtr>([&commands](const auto& tuple) {
