@@ -78,7 +78,6 @@ namespace ic {
 
     rust::Result<ic::Execution> LibraryPreloadSession::resolve(const ic::Execution &execution) const
     {
-        spdlog::debug("trying to resolve for library: {}", execution.executable.string());
         return rust::Ok(ic::Execution{
                 execution.executable,
                 execution.arguments,

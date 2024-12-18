@@ -101,7 +101,7 @@ namespace {
     }
 
     rust::Result<sys::Process::Builder>
-    prepare_rewrite(const flags::Arguments &arguments, const sys::env::Vars &environment, const fs::path &_) {
+    prepare_rewrite(const flags::Arguments &arguments, const sys::env::Vars &environment, const fs::path &) {
         auto program = arguments.as_string(cmd::bear::FLAG_BEAR);
         auto output = arguments.as_string(cmd::rewrite::FLAG_OUTPUT);
         auto config = arguments.as_string(cmd::rewrite::FLAG_CONFIG);
@@ -178,7 +178,9 @@ namespace bear {
                         {cmd::intercept::FLAG_LIBRARY,       {1,  false, "path to the preload library",    {cmd::library::DEFAULT_PATH},     DEVELOPER_GROUP}},
                         {cmd::intercept::FLAG_WRAPPER,       {1,  false, "path to the wrapper executable", {cmd::wrapper::DEFAULT_PATH},     DEVELOPER_GROUP}},
                         {cmd::intercept::FLAG_WRAPPER_DIR,   {1,  false, "path to the wrapper directory",  {cmd::wrapper::DEFAULT_DIR_PATH}, DEVELOPER_GROUP}},
-                        {cmd::intercept::FLAG_COMMAND,       {-1, true,  "command to execute",             std::nullopt,                     std::nullopt}}
+                        {cmd::intercept::FLAG_COMMAND,       {-1, true,  "command to execute",             std::nullopt,                     std::nullopt}},
+
+                        {cmd::intercept::FLAG_REWRITE_CONFIG,   {1,  false, "path to the rewrite config file, if specify this, command may be writted",  std::nullopt, DEVELOPER_GROUP}}
                 });
 
                 const flags::Parser rewrite_parser("rewrite", cmd::VERSION, {

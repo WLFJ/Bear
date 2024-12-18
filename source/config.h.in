@@ -103,6 +103,8 @@ namespace cmd {
         constexpr char FLAG_FORCE_WRAPPER[] = "--force-wrapper";
         constexpr char FLAG_FORCE_PRELOAD[] = "--force-preload";
 
+        constexpr char FLAG_REWRITE_CONFIG[] = "--rewrite-config";
+
         constexpr char DEFAULT_OUTPUT[] = "events.json";
     }
 

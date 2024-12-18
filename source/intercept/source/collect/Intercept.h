@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "collect/RewriteConfig.h"
 #include "config.h"
 #include "libmain/SubcommandFromArgs.h"
 #include "Session.h"
@@ -34,11 +35,12 @@ namespace ic {
 
     struct Command : ps::Command {
 
-        Command(Execution execution, Session::Ptr session, Reporter::Ptr reporter)
+        Command(Execution execution, Session::Ptr session, Reporter::Ptr reporter, RewriteConfig rewrite_cfg)
                 : ps::Command()
                 , execution_(std::move(execution))
                 , session_(std::move(session))
                 , reporter_(std::move(reporter))
+                , rewrite_cfg_(std::move(rewrite_cfg))
         { }
 
         [[nodiscard]] rust::Result<int> execute() const override;
@@ -50,5 +52,7 @@ namespace ic {
         Execution execution_;
         Session::Ptr session_;
         Reporter::Ptr reporter_;
+
+        RewriteConfig rewrite_cfg_;
     };
 }

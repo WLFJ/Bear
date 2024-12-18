@@ -18,6 +18,8 @@
  */
 
 #include "Convert.h"
+#include <fmt/ranges.h>
+#include <spdlog/spdlog.h>
 
 namespace domain {
 
@@ -32,6 +34,7 @@ namespace domain {
 
     rpc::Execution into(const Execution &input) noexcept {
         rpc::Execution result;
+
         result.set_executable(input.executable.string());
         result.mutable_arguments()->Reserve(input.arguments.size());
         for (const auto &argument : input.arguments) {

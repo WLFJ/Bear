@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include "collect/RewriteConfig.h"
+#include "config.h"
 #include "intercept.grpc.pb.h"
 #include "supervise.grpc.pb.h"
 
@@ -29,16 +31,18 @@ namespace ic {
 
     class SupervisorImpl final : public rpc::Supervisor::Service {
     public:
-        explicit SupervisorImpl(const Session&);
+        explicit SupervisorImpl(const Session&, const RewriteConfig&);
         ~SupervisorImpl() override = default;
 
-        grpc::Status Resolve(grpc::ServerContext *context, const rpc::ResolveRequest *request, rpc::ResolveResponse *response) override;
+        grpc::Status Resolve(grpc::ServerContext* context, const rpc::ResolveRequest* request, rpc::ResolveResponse* response) override;
 
         NON_DEFAULT_CONSTRUCTABLE(SupervisorImpl)
         NON_COPYABLE_NOR_MOVABLE(SupervisorImpl)
 
     private:
-        const Session &session_;
+        const Session& session_;
+
+        const RewriteConfig& rewrite_cfg_;
     };
 
     class InterceptorImpl final : public rpc::Interceptor::Service {
