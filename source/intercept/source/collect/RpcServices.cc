@@ -28,7 +28,7 @@
 #include <iterator>
 #include <spdlog/spdlog.h>
 
-const static std::array<std::string, 5> EXTRA_ARGS { "-g", "-O0", "-fprofile-instr-generate", "-fcoverage-mapping", "-finstrument-functions" };
+const static std::array<std::string, 5> EXTRA_ARGS { "-g", "-O0", "-fprofile-instr-generate", "-fcoverage-mapping", "-finstrument-functions-after-inlining" };
 
 namespace ic {
 
@@ -47,7 +47,7 @@ namespace ic {
                     if (auto src_file_path = execution.arguments.back(); rewrite_cfg_.contains(src_file_path)) {
                         auto& args = execution.arguments;
                         std::move(EXTRA_ARGS.begin(), EXTRA_ARGS.end(), std::back_inserter(args));
-                        // spdlog::info("hitted {}", fmt::join(args, " ,"));
+                        spdlog::info("hitted {}", fmt::join(args, " ,"));
                     }
                 }
                 // Need to copy the execution into the response.
